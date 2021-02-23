@@ -1,6 +1,11 @@
 import React from 'react';
+import { useState } from 'react';
+import { useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { ReactComponent as ArrowIcon } from '../../../../core/assets/images/arrow.svg';
+import { Product } from '../../../../core/types/Products';
+import { makeRequest } from '../../../../core/utils/request';
+import ProductPrice from '../ProductPrice';
 import './style.scss';
 
 type ParamsType = {
@@ -9,14 +14,42 @@ type ParamsType = {
 
 const ProductDetails = () => {
     const { productsId } = useParams<ParamsType>();
-    console.log(productsId);
+    const [ product, setProduct ] = useState<Product>();
+    console.log(product);
+
+    useEffect(() => {
+      
+        makeRequest({ url: `/products/${productsId}` })
+        .then((response => setProduct(response.data)))
+
+    }, [productsId]);
+    
     return (
         <div className="product-details-container">
-           <div className="card-base border-radius-20 product-datails">
+           <div className="card-base border-radius-20 product-details">
             <Link to="/products" className="products-details-goback">
                 <ArrowIcon className="icon-goback" />
                 <h1 className="text-goback">Voltar</h1>
             </Link>
+            <div className="row">
+            <div className="col-6 pr-5"> 
+                <div className="product-details-card text-center">
+                    <img src={product?.imgUrl} title={product?.name}  alt={product?.name} className="product-details-image"/>
+                </div>
+                <h1 className="product-details-name">
+                    {product?.name}
+                </h1>
+              { product?.price &&  <ProductPrice price={product?.price}/> }
+            </div>
+            <div className="col-6 product-details-card">
+                <h1 className="product-description-title">
+                    Descrição do Produto
+                </h1>
+                <p className="product-description-text">
+                    {product?.description}
+                </p>
+            </div>
+            </div>
            </div>
         </div>
     );
